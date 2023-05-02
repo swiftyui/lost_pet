@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
 import 'package:lost_pet/views/login_screens/login_screen.dart';
 
 class HomeDrawer extends StatefulWidget {

@@ -19,6 +19,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildBody(BuildContext context) {
-    return Placeholder();
+    return const Placeholder();
   }
 }
