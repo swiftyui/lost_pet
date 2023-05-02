@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:lost_pet/services/animation_list.dart';
-import 'package:lost_pet/views/home_screens/home_screen.dart';
+import 'package:lost_pet/src/models/user_model.dart';
+import 'package:lost_pet/src/services/animation_list.dart';
+import 'package:lost_pet/src/services/authentication_service.dart';
+import 'package:lost_pet/src/views/home_screens/home_screen.dart';
 import 'package:lottie/lottie.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -12,6 +14,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   final bool _loading = false;
 
   @override
@@ -104,7 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildPasswordField(BuildContext context) {
     return TextFormField(
-      controller: _emailController,
+      controller: _passwordController,
       enabled: !_loading,
       decoration: InputDecoration(
         prefixIcon: const Icon(
@@ -137,8 +140,18 @@ class _LoginScreenState extends State<LoginScreen> {
         onPressed: _loading
             ? () {}
             : () async {
-                Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => const HomeScreen()));
+                try {
+                  UserModel? result =
+                      await AuthenticationService().signInWithEmailAndPassword(
+                    email: _emailController.text,
+                    password: _passwordController.text,
+                  );
+
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                      builder: (context) => const HomeScreen()));
+                } on AuthenticationServiceError catch (error) {
+                  print(error.message.toString());
+                }
               },
         child: _loading
             ? const SizedBox.square(

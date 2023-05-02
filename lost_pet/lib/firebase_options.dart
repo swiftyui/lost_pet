@@ -25,10 +25,7 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for windows - '
@@ -47,31 +44,42 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAcNK3w0vJDE1hcbwtaClI50zeTI-bw99I',
-    appId: '1:951528668411:web:6c19f0b04612149d62845e',
+    apiKey: 'AIzaSyDBeb6Z63gIM5wqcZruRzQoPDxgYaowj74',
+    appId: '1:371301374064:web:ec5e23d31fbbf05e50bcb5',
     messagingSenderId: '371301374064',
     projectId: 'lost-pet-dcffd',
-    authDomain: 'entelect-app.firebaseapp.com',
-    storageBucket: 'entelect-app.appspot.com',
-    measurementId: 'G-8TP2LEBKQH',
+    authDomain: 'lost-pet-dcffd.firebaseapp.com',
+    storageBucket: 'lost-pet-dcffd.appspot.com',
+    measurementId: 'G-0LBJW17D83',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCToWxGQZwwyBQa9z_yAAFB1w7ZwdmHZL8',
-    appId: '1:371301374064:android:25e4fd51971d7b8c50bcb5',
+    apiKey: 'AIzaSyA1rKZLx8TLh3XkPTxRQmR8SJzjhaQBN4A',
+    appId: '1:371301374064:android:a9494c5b8d11ca8450bcb5',
     messagingSenderId: '371301374064',
     projectId: 'lost-pet-dcffd',
-    storageBucket: 'entelect-app.appspot.com',
+    storageBucket: 'lost-pet-dcffd.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBz08mfbbNRrDSPz3atNZItFBn9WIkFvYk',
-    appId: '1:371301374064:ios:83204293df49926050bcb5',
+    apiKey: 'AIzaSyAjU4A41FQ2Tq7Qo6Jk-bl6Q8jASpi0F0g',
+    appId: '1:371301374064:ios:da82bbcc3386a47f50bcb5',
     messagingSenderId: '371301374064',
     projectId: 'lost-pet-dcffd',
-    storageBucket: 'entelect-app.appspot.com',
+    storageBucket: 'lost-pet-dcffd.appspot.com',
     iosClientId:
-        '951528668411-jiqha4qur2pqq5qhbjvrcihkd2t7ccfu.apps.googleusercontent.com',
-    iosBundleId: 'com.entelect.entelectApp',
+        '371301374064-6dleg8og58cpft9gcfu2khrogdueqfvm.apps.googleusercontent.com',
+    iosBundleId: 'com.vanzylarno.lostPet',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyAjU4A41FQ2Tq7Qo6Jk-bl6Q8jASpi0F0g',
+    appId: '1:371301374064:ios:da82bbcc3386a47f50bcb5',
+    messagingSenderId: '371301374064',
+    projectId: 'lost-pet-dcffd',
+    storageBucket: 'lost-pet-dcffd.appspot.com',
+    iosClientId:
+        '371301374064-6dleg8og58cpft9gcfu2khrogdueqfvm.apps.googleusercontent.com',
+    iosBundleId: 'com.vanzylarno.lostPet',
   );
 }

@@ -1,14 +1,24 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:lost_pet/firebase_options.dart';
-import 'package:lost_pet/services/theme.dart';
-import 'package:lost_pet/views/login_screens/login_screen.dart';
+import 'package:lost_pet/src/services/authentication_service.dart';
+import 'package:lost_pet/src/services/theme.dart';
+import 'package:lost_pet/src/views/login_screens/login_screen.dart';
 import 'package:skeletons/skeletons.dart';
 
 Future main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+    name: 'lost-pet',
+  );
+  await _initializeServices();
   runApp(MyApp());
+}
+
+Future _initializeServices() async {
+  await UserProvider.initialise(FirebaseAuth.instance);
 }
 
 class MyApp extends StatelessWidget {
@@ -67,7 +77,7 @@ class MyApp extends StatelessWidget {
         end: Alignment.bottomRight,
       ),
       child: MaterialApp(
-        title: 'Entelect Companion',
+        title: 'Lost Pet',
         debugShowCheckedModeBanner: false,
         restorationScopeId: 'app',
         theme: theme.light(settings.value.sourceColor),

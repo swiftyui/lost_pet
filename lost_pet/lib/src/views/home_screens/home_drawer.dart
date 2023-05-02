@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lost_pet/views/login_screens/login_screen.dart';
+import 'package:lost_pet/src/services/authentication_service.dart';
+import 'package:lost_pet/src/views/login_screens/login_screen.dart';
 
 class HomeDrawer extends StatefulWidget {
   const HomeDrawer({super.key});
@@ -30,6 +31,7 @@ class _HomeDrawerState extends State<HomeDrawer> {
     return ListTile(
       tileColor: Theme.of(context).colorScheme.onSecondary,
       onTap: () {
+        AuthenticationService().signOut();
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => const LoginScreen()));
       },

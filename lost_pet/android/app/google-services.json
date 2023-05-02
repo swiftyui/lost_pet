@@ -7,6 +7,42 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:371301374064:android:a9494c5b8d11ca8450bcb5",
+        "android_client_info": {
+          "package_name": "com.example.lost_pet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "371301374064-cgr6q24ivspb9edn2q4o643rsloevr74.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA1rKZLx8TLh3XkPTxRQmR8SJzjhaQBN4A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "371301374064-cgr6q24ivspb9edn2q4o643rsloevr74.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "371301374064-b25f3ujr7irrkj5rt508s17mln7vplq1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.vanzylarno.lostpet"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:371301374064:android:25e4fd51971d7b8c50bcb5",
         "android_client_info": {
           "package_name": "com.vanzylarno.lostpet"
