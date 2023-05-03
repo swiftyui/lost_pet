@@ -1,10 +1,14 @@
+import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lost_pet/firebase_options.dart';
 import 'package:lost_pet/src/services/authentication_service.dart';
 import 'package:lost_pet/src/services/theme.dart';
+import 'package:lost_pet/src/views/home_screens/home_screen.dart';
 import 'package:lost_pet/src/views/login_screens/login_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:skeletons/skeletons.dart';
 
 Future main() async {
@@ -14,7 +18,22 @@ Future main() async {
     name: 'lost-pet',
   );
   await _initializeServices();
-  runApp(MyApp());
+
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitDown,
+    DeviceOrientation.portraitUp,
+  ]);
+
+  // Get the saved user preferences
+  final prefs = await SharedPreferences.getInstance();
+  EncryptedSharedPreferences encryptedSharedPreferences =
+      EncryptedSharedPreferences(prefs: prefs);
+  SharedPreferences instance = await encryptedSharedPreferences.getInstance();
+  final rememberMe = instance.getBool('rememberMe') ?? false;
+
+  runApp(MyApp(
+    rememberMe: rememberMe,
+  ));
 }
 
 Future _initializeServices() async {
@@ -22,9 +41,11 @@ Future _initializeServices() async {
 }
 
 class MyApp extends StatelessWidget {
-  MyApp({super.key});
+  MyApp({super.key, required this.rememberMe});
   final settings = ValueNotifier(
       ThemeSettings(sourceColor: entelectColor, themeMode: ThemeMode.system));
+  final AuthenticationService authenticationService = AuthenticationService();
+  final bool rememberMe;
 
   // This widget is the root of your application.
   @override
@@ -45,6 +66,13 @@ class MyApp extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _determineChildToShow() {
+    if (rememberMe && authenticationService.isUserLoggedIn) {
+      return const HomeScreen();
+    }
+    return const LoginScreen();
   }
 
   SkeletonTheme _buildMaterialApp(ThemeProvider theme) {
@@ -87,7 +115,7 @@ class MyApp extends StatelessWidget {
             if (child != null) OverlayEntry(builder: (context) => child),
           ],
         ),
-        home: const LoginScreen(),
+        home: _determineChildToShow(),
       ),
     );
   }

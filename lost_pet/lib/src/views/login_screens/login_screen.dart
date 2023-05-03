@@ -1,9 +1,13 @@
+import 'package:encrypted_shared_preferences/encrypted_shared_preferences.dart';
 import 'package:flutter/material.dart';
 import 'package:lost_pet/src/models/user_model.dart';
 import 'package:lost_pet/src/services/animation_list.dart';
 import 'package:lost_pet/src/services/authentication_service.dart';
+import 'package:lost_pet/src/services/theme.dart';
 import 'package:lost_pet/src/views/home_screens/home_screen.dart';
+import 'package:lost_pet/src/views/widgets/error_popup.dart';
 import 'package:lottie/lottie.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,7 +19,12 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final bool _loading = false;
+  bool _loading = false;
+  bool _rememberMe = false;
+  String _emailAddress = '';
+  bool _validEmail = false;
+  String _password = '';
+  bool _isHidden = true;
 
   @override
   Widget build(BuildContext context) {
@@ -67,6 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   _buildEmailField(context),
                   const SizedBox(height: 20),
                   _buildPasswordField(context),
+                  _buildRememberMeCheckBox(context),
                   const SizedBox(height: 20),
                   _buildSignInButton(context),
                 ],
@@ -100,7 +110,40 @@ class _LoginScreenState extends State<LoginScreen> {
       textCapitalization: TextCapitalization.none,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: (value) {
+        if (value != null && value.isEmpty) {
+          return 'Email cannot be empty';
+        } else {
+          final String email = value ?? "";
+          _validEmail = RegExp(
+                  r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+              .hasMatch(email);
+          if (_validEmail == false) {
+            return 'Invalid email provided';
+          }
+        }
         return null;
+      },
+    );
+  }
+
+  Widget _buildRememberMeCheckBox(BuildContext context) {
+    return CheckboxListTile(
+      contentPadding: EdgeInsets.zero,
+      checkColor: Theme.of(context).colorScheme.onSecondary,
+      activeColor: greenAccentColour,
+      controlAffinity: ListTileControlAffinity.leading,
+      title: const Text(
+        'Remember me',
+        style: TextStyle(
+          fontSize: 14,
+          fontFamily: 'avenir',
+        ),
+      ),
+      value: _rememberMe,
+      onChanged: (value) {
+        setState(() {
+          _rememberMe = value ?? false;
+        });
       },
     );
   }
@@ -108,27 +151,51 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildPasswordField(BuildContext context) {
     return TextFormField(
       controller: _passwordController,
+      obscureText: _isHidden,
+      obscuringCharacter: '*',
       enabled: !_loading,
       decoration: InputDecoration(
         prefixIcon: const Icon(
-          Icons.password_outlined,
-        ),
-        suffixIcon: IconButton(
-          onPressed: _emailController.clear,
-          icon: const Icon(
-            Icons.clear,
-            color: Colors.grey,
-          ),
+          Icons.lock_outline,
+          color: greyIconColour,
         ),
         hintText: 'Password',
         labelText: 'Password',
+        suffixIcon: IconButton(
+          icon: Icon(
+            _isHidden
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined,
+            color: greyIconColour,
+          ),
+          onPressed: _togglePasswordView,
+        ),
       ),
-      keyboardType: TextInputType.emailAddress,
+      keyboardType: _isHidden ? null : TextInputType.visiblePassword,
       textCapitalization: TextCapitalization.none,
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: (value) {
         return null;
       },
+    );
+  }
+
+  void _togglePasswordView() {
+    setState(() {
+      _isHidden = !_isHidden;
+    });
+  }
+
+  Future<void> _showError({
+    required String title,
+    required String message,
+  }) async {
+    await showDialog(
+      context: context,
+      builder: (context) => ErrorPopup(
+        title: title,
+        message: message,
+      ),
     );
   }
 
@@ -141,16 +208,15 @@ class _LoginScreenState extends State<LoginScreen> {
             ? () {}
             : () async {
                 try {
-                  UserModel? result =
-                      await AuthenticationService().signInWithEmailAndPassword(
-                    email: _emailController.text,
-                    password: _passwordController.text,
-                  );
-
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      builder: (context) => const HomeScreen()));
+                  _setLoading(true);
+                  await _login();
+                  _setLoading(false);
                 } on AuthenticationServiceError catch (error) {
-                  print(error.message.toString());
+                  _setLoading(false);
+                  await _showError(
+                    title: 'Authentication Error',
+                    message: error.message,
+                  );
                 }
               },
         child: _loading
@@ -164,5 +230,90 @@ class _LoginScreenState extends State<LoginScreen> {
             : const Text('SIGN IN'),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _asyncInit();
+  }
+
+  Future _asyncInit() async {
+    await _loadPreferences();
+  }
+
+  void _setLoading([bool loading = false]) {
+    setState(() {
+      _loading = loading;
+    });
+  }
+
+  Future _login() async {
+    if (_validEmail == true) {
+      _emailAddress = _emailController.text;
+      _password = _passwordController.text;
+
+      await _savePreferences(
+          rememberMe: _rememberMe,
+          emailAddress: _emailAddress,
+          password: _password);
+
+      UserModel? result =
+          await AuthenticationService().signInWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+      if (result == null) {
+        await _showError(
+          title: 'Authentication Error',
+          message: 'An unknown error occurred.',
+        );
+      } else {
+        _navigateToHomeScreen();
+      }
+    }
+  }
+
+  Future<void> _savePreferences({
+    required bool rememberMe,
+    String? emailAddress,
+    String? password,
+  }) async {
+    final prefs = await SharedPreferences.getInstance();
+    EncryptedSharedPreferences encryptedSharedPreferences =
+        EncryptedSharedPreferences(prefs: prefs);
+    SharedPreferences instance = await encryptedSharedPreferences.getInstance();
+    await instance.setBool('rememberMe', rememberMe);
+    await instance.setBool('showLogin', true);
+    if (rememberMe) {
+      await instance.setString('emailAddress', emailAddress!);
+      await instance.setString('password', password!);
+    }
+  }
+
+  _navigateToHomeScreen() {
+    Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const HomeScreen()));
+  }
+
+  Future _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    EncryptedSharedPreferences encryptedSharedPreferences =
+        EncryptedSharedPreferences(prefs: prefs);
+    SharedPreferences instance = await encryptedSharedPreferences.getInstance();
+    _rememberMe = instance.getBool('rememberMe') ?? false;
+
+    if (_rememberMe == true) {
+      _emailAddress = instance.getString('emailAddress') ?? '';
+      _password = instance.getString('password') ?? '';
+    }
+
+    setState(() {
+      _rememberMe = _rememberMe;
+      _emailAddress = _emailAddress;
+      _password = _password;
+      _emailController.text = _emailAddress;
+      _passwordController.text = _password;
+    });
   }
 }
