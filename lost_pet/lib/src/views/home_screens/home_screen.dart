@@ -47,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
           position.latitude,
           position.longitude,
         ),
-        zoom: 14.4746,
+        zoom: 15,
       );
       setState(() {});
     } else {
@@ -107,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _mapWidget(BuildContext context) {
     if (_hasLocationAccess) {
       return Padding(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+        padding: const EdgeInsets.fromLTRB(8, 8, 8, 2),
         child: Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -150,6 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     zoomGesturesEnabled: true,
                     tiltGesturesEnabled: true,
                     zoomControlsEnabled: true,
+                    rotateGesturesEnabled: true,
                   ),
                 ),
               ],
