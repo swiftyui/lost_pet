@@ -1,10 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lost_pet/src/models/user_model.dart';
-import 'package:lost_pet/src/services/animation_list.dart';
 import 'package:lost_pet/src/services/authentication_service.dart';
 import 'package:lost_pet/src/services/theme.dart';
 import 'package:lost_pet/src/views/home_screens/home_drawer.dart';
-import 'package:lottie/lottie.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -15,6 +16,28 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+  final Completer<GoogleMapController> _controller =
+      Completer<GoogleMapController>();
+  static const CameraPosition _kGooglePlex = CameraPosition(
+    target: LatLng(37.42796133580664, -122.085749655962),
+    zoom: 14.4746,
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _asyncInit();
+  }
+
+  Future _asyncInit() async {
+    await _getCurrentLocation();
+  }
+
+  Future _getCurrentLocation() async {
+    Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high);
+    print(position);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +111,17 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 10),
-              Lottie.asset(AnimationList.map),
+              SizedBox(
+                width: MediaQuery.of(context).size.width,
+                height: 400,
+                child: GoogleMap(
+                  mapType: MapType.normal,
+                  initialCameraPosition: _kGooglePlex,
+                  onMapCreated: (GoogleMapController controller) {
+                    _controller.complete(controller);
+                  },
+                ),
+              ),
             ],
           ),
         ),
