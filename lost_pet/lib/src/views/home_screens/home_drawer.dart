@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lost_pet/src/services/authentication_service.dart';
+import 'package:lost_pet/src/services/user_provider.dart';
 import 'package:lost_pet/src/views/login_screens/login_screen.dart';
+import 'package:lost_pet/src/views/user_profile_screens/my_profile_screen.dart';
 import 'package:lost_pet/src/views/widgets/change_user_avatar.dart';
 
 class HomeDrawer extends StatefulWidget {
@@ -23,6 +25,9 @@ class _HomeDrawerState extends State<HomeDrawer> {
         padding: EdgeInsets.zero,
         children: [
           _buildHeader(context),
+          const Divider(),
+          _buildProfileButton(context),
+          const Divider(),
           _logoutButton(context),
         ],
       ),
@@ -66,6 +71,29 @@ class _HomeDrawerState extends State<HomeDrawer> {
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildProfileButton(BuildContext context) {
+    return ListTile(
+      tileColor: Theme.of(context).colorScheme.onSecondary,
+      onTap: () {
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => const MyProfileScreen()));
+      },
+      dense: true,
+      title: const Text(
+        'My Profile',
+        style: TextStyle(
+          fontFamily: 'avenir',
+          fontSize: 15,
+        ),
+      ),
+      leading: Icon(
+        Icons.person_outline,
+        color: Theme.of(context).colorScheme.onBackground,
+        size: 30,
       ),
     );
   }

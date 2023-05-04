@@ -1,9 +1,11 @@
 import 'dart:io';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:lost_pet/src/services/authentication_service.dart';
+import 'package:lost_pet/src/services/user_provider.dart';
+import 'package:lost_pet/src/views/widgets/custom_snackbar.dart';
 import 'package:lost_pet/src/views/widgets/error_popup.dart';
 import 'package:lost_pet/src/views/widgets/user_avatar.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -73,44 +75,44 @@ class _ChangeUserAvatarState extends State<ChangeUserAvatar> {
 
   Future<void> _onImageButtonPressed(
       ImageSource source, BuildContext context) async {
-    // widget.setLoading(true);
-    // bool hasPermissions = await _getPermissions();
-    // if (!hasPermissions) {
-    //   widget.setLoading(false);
-    //   _showError(
-    //       'Photo Access Denied',
-    //       'It seems that access to your photos have been denied, '
-    //           'please grant access in your settings to change your profile picture');
-    //   return;
-    // }
-    // try {
-    //   final XFile? pickedFile = await _picker.pickImage(source: source);
-    //   setState(() {
-    //     _setImageFileListFromFile(pickedFile);
-    //   });
+    widget.setLoading(true);
+    bool hasPermissions = await _getPermissions();
+    if (!hasPermissions) {
+      widget.setLoading(false);
+      _showError(
+          'Photo Access Denied',
+          'It seems that access to your photos have been denied, '
+              'please grant access in your settings to change your profile picture');
+      return;
+    }
+    try {
+      final XFile? pickedFile = await _picker.pickImage(source: source);
+      setState(() {
+        _setImageFileListFromFile(pickedFile);
+      });
 
-    //   //update the DB
-    //   var imagePath = "";
-    //   if (_imageFileList != null) {
-    //     imagePath = _imageFileList![0].path;
-    //     await _userProvider.updateUserData(imagePath, null, null);
-    //     await _loadUserDetails();
-    //     widget.setLoading(false);
+      //update the DB
+      var imagePath = "";
+      if (_imageFileList != null) {
+        imagePath = _imageFileList![0].path;
+        await _userProvider.updateProfilePicture(filePath: imagePath);
+        await _loadUserDetails();
+        widget.setLoading(false);
 
-    //     if (context.mounted) {
-    //       CustomSnackBar.showSnackBar(
-    //         context,
-    //         'Success!',
-    //         'Profile image updated!',
-    //         ContentType.success,
-    //       );
-    //     }
-    //   }
-    //   widget.setLoading(false);
-    // } catch (error) {
-    //   widget.setLoading(false);
-    //   _showError('Profile Picture Error', '$error');
-    // }
+        if (context.mounted) {
+          CustomSnackBar.showSnackBar(
+            context,
+            'Success!',
+            'Profile image updated!',
+            ContentType.success,
+          );
+        }
+      }
+      widget.setLoading(false);
+    } catch (error) {
+      widget.setLoading(false);
+      _showError('Profile Picture Error', '$error');
+    }
   }
 
   void _setImageFileListFromFile(XFile? value) {

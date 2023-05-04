@@ -7,64 +7,6 @@ class AuthenticationServiceError extends Error {
   AuthenticationServiceError(this.message);
 }
 
-class UserProvider extends ValueNotifier<UserModel?> {
-  static late final UserProvider _instance;
-  static UserProvider get instance => _instance;
-  User? _firebaseUser;
-  final FirebaseAuth? _auth;
-
-  UserProvider._internal(this._auth) : super(null) {
-    // Firebase auth changes
-    _auth?.userChanges().listen((event) {
-      _firebaseUser = event;
-      updateUserFromFirebaseChange(event);
-    });
-  }
-
-  static initialise(FirebaseAuth? instance) {
-    _instance = UserProvider._internal(instance);
-  }
-
-  Future<void> updateUserFromFirebaseChange(User? user) async {
-    if (user == null) {
-      value = null;
-      return;
-    }
-    value = UserModel.fromFirebaseUser(user);
-    if (value?.uid == user.uid) {
-      return;
-    }
-  }
-
-  Future<void> updateUserProfilePicture(String photoURL) async {
-    if (_firebaseUser == null) {
-      throw StateError('The user is not currently logged in.');
-    }
-    await _firebaseUser!.updatePhotoURL(photoURL);
-  }
-
-  // Future<String> _uploadFile(File file, String directory) async {
-  //   try {
-  //     // get the content type
-  //     final mimeType = lookupMimeType(file.path);
-  //     final metadata = SettableMetadata(
-  //       contentType: mimeType,
-  //       customMetadata: {'picked-file-path': file.path},
-  //     );
-  //     UploadTask uploadTask;
-  //     Reference ref = FirebaseStorage.instance
-  //         .ref()
-  //         .child(directory)
-  //         .child('/${Guid.newGuid}');
-
-  //     uploadTask = ref.putData(await file.readAsBytes(), metadata);
-  //     return await (await uploadTask).ref.getDownloadURL();
-  //   } catch (error) {
-  //     throw Exception();
-  //   }
-  // }
-}
-
 class AuthenticationService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
@@ -89,7 +31,9 @@ class AuthenticationService {
       String email, String password) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
-          email: email, password: password);
+        email: email,
+        password: password,
+      );
       result.user?.updateDisplayName('Luke Skywalker');
       User? user = result.user;
       return _userFromFirebaseUser(user!);

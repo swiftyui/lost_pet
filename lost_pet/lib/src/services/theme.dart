@@ -298,7 +298,7 @@ class ThemeProvider extends InheritedWidget {
     final colorScheme = colors(Brightness.light, targetColor).copyWith(
       primary: const Color.fromARGB(255, 64, 148, 61),
       background: const Color.fromRGBO(245, 245, 245, 1),
-      onSurface: const Color.fromRGBO(0, 40, 80, 1),
+      onSurface: const Color.fromARGB(255, 32, 89, 30),
       onSecondary: const Color.fromRGBO(255, 255, 255, 1),
       onInverseSurface: const Color.fromRGBO(0, 0, 0, 0.12),
     );

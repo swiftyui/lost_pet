@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lost_pet/firebase_options.dart';
 import 'package:lost_pet/src/services/authentication_service.dart';
+import 'package:lost_pet/src/services/pets_service.dart';
 import 'package:lost_pet/src/services/theme.dart';
+import 'package:lost_pet/src/services/user_provider.dart';
 import 'package:lost_pet/src/views/home_screens/home_screen.dart';
 import 'package:lost_pet/src/views/login_screens/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -38,6 +40,7 @@ Future main() async {
 
 Future _initializeServices() async {
   await UserProvider.initialise(FirebaseAuth.instance);
+  await LostPetsService.initialise();
 }
 
 class MyApp extends StatelessWidget {

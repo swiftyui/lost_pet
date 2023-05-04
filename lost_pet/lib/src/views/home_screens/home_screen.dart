@@ -1,12 +1,15 @@
 import 'dart:async';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lost_pet/src/models/user_model.dart';
 import 'package:lost_pet/src/services/animation_list.dart';
-import 'package:lost_pet/src/services/authentication_service.dart';
+import 'package:lost_pet/src/services/pets_service.dart';
 import 'package:lost_pet/src/services/theme.dart';
+import 'package:lost_pet/src/services/user_provider.dart';
 import 'package:lost_pet/src/views/home_screens/home_drawer.dart';
+import 'package:lost_pet/src/views/lost_pet_screens/report_lost_pet.dart';
 import 'package:lottie/lottie.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -96,11 +99,72 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             children: [
               _welcomeWidget(context, value),
+              _reportLostPet(context),
               _mapWidget(context),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _reportLostPet(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 8, 0),
+      child: Column(
+        children: [
+          InkWell(
+            onTap: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const ReportLostPetScreen()));
+            },
+            child: Container(
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: lightCardBoxShadow,
+              ),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                child: Column(
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: greenAccentColour,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: Icon(
+                          Icons.pets,
+                          color: Colors.white,
+                          size: 32,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: SizedBox(
+                        width: (MediaQuery.of(context).size.width / 2.8),
+                        child: AutoSizeText(
+                          'Report a Lost Pet',
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          maxFontSize: 16,
+                          minFontSize: 6,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
