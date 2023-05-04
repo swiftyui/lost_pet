@@ -5,7 +5,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:lost_pet/src/models/user_model.dart';
 import 'package:lost_pet/src/services/animation_list.dart';
-import 'package:lost_pet/src/services/pets_service.dart';
 import 'package:lost_pet/src/services/theme.dart';
 import 'package:lost_pet/src/services/user_provider.dart';
 import 'package:lost_pet/src/views/home_screens/home_drawer.dart';

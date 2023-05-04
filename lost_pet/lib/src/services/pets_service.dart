@@ -47,7 +47,6 @@ class LostPetsService extends ValueNotifier<List<PetModel>> {
       (subscription) {
         for (var doc in subscription.docs) {
           var foundPet = PetModel.fromJson(doc.data() as Map<String, dynamic>);
-          print(foundPet.petName);
           value.add(foundPet);
         }
         notifyListeners();
