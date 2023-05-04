@@ -1,12 +1,19 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as GoogleMaps;
+import 'package:image_picker/image_picker.dart';
 import 'package:lost_pet/src/services/animation_list.dart';
 import 'package:lost_pet/src/services/theme.dart';
+import 'package:lost_pet/src/views/widgets/custom_snackbar.dart';
+import 'package:lost_pet/src/views/widgets/error_popup.dart';
 import 'package:lottie/lottie.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -23,6 +30,8 @@ class _ReportLostPetScreenState extends State<ReportLostPetScreen> {
   final List<AnimalType> _animalTypes = [];
   final TextEditingController _lastSeenLocationController =
       TextEditingController();
+  List<XFile>? _imageFileList;
+  final ImagePicker _picker = ImagePicker();
 
   late final GoogleMaps.CameraPosition _usersLocation;
   final Completer<GoogleMaps.GoogleMapController> _controller =
@@ -72,6 +81,77 @@ class _ReportLostPetScreenState extends State<ReportLostPetScreen> {
     } else {
       setState(() {});
     }
+  }
+
+  Future<Permission> _getRelevantPhotoPermission() async {
+    if (kIsWeb || !Platform.isAndroid) {
+      return Permission.photos;
+    }
+    DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+    final androidInfo = await deviceInfo.androidInfo;
+    if (androidInfo.version.sdkInt <= 32) {
+      return Permission.storage;
+    } else {
+      return Permission.photos;
+    }
+  }
+
+  Future<bool> _getPermissions() async {
+    Permission permission = await _getRelevantPhotoPermission();
+    var status = await permission.status;
+    if (status.isGranted || status.isLimited) {
+      return true;
+    }
+    var request = await permission.request();
+    return request.isGranted || request.isLimited;
+  }
+
+  Future<void> _onImageButtonPressed(
+      ImageSource source, BuildContext context) async {
+    bool hasPermissions = await _getPermissions();
+    if (!hasPermissions) {
+      _showError(
+          'Photo Access Denied',
+          'It seems that access to your photos have been denied, '
+              'please grant access in your settings to change your profile picture');
+      return;
+    }
+    try {
+      final List<XFile?> pickedFiles = await _picker.pickMultiImage();
+      for (var i = 0; i < pickedFiles.length; i++) {
+        // pickedFiles[i].path;
+      }
+
+      //update the DB
+      var imagePath = "";
+      if (_imageFileList != null) {
+        imagePath = _imageFileList![0].path;
+        // await _userProvider.updateProfilePicture(filePath: imagePath);
+        // await _loadUserDetails();
+        // widget.setLoading(false);
+
+        if (context.mounted) {
+          CustomSnackBar.showSnackBar(
+            context,
+            'Success!',
+            'Profile image updated!',
+            ContentType.success,
+          );
+        }
+      }
+    } catch (error) {
+      _showError('Profile Picture Error', '$error');
+    }
+  }
+
+  Future<void> _showError(String title, String message) async {
+    await showDialog(
+      context: context,
+      builder: (context) => ErrorPopup(
+        title: title,
+        message: message,
+      ),
+    );
   }
 
   void changeColor(Color color) {
@@ -193,7 +273,9 @@ class _ReportLostPetScreenState extends State<ReportLostPetScreen> {
 
   Widget _buildUploadImageButton(BuildContext context) {
     return InkWell(
-      onTap: () async {},
+      onTap: () async {
+        await _onImageButtonPressed(ImageSource.gallery, context);
+      },
       child: Container(
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
